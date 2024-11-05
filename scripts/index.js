@@ -64,7 +64,7 @@ class App {
     addNotesToPage() {
         if (this.notes.length > 0) {
             this.wrapper.classList.remove("flex", "min-h-full");
-            this.wrapper.classList.add("grid", "gap-6");
+            this.wrapper.classList.add("grid", "gap-4", "md:gap-6");
             this.wrapper.innerHTML = "";
             const pin = this.notes.filter(item => item.isPin);
             const unpin = this.notes.filter(item => !item.isPin);
