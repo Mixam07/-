@@ -1,28 +1,20 @@
-class BcryptHasher {
-    hash(value, callback) {
-        bcrypt.hash(value, 10, (err, hashedPassword) => {
-            if (err) {
-                return console.error('Error:', err);
-            }
-    
-            callback(hashedPassword);
-        })
+class PasswordService {
+    constructor() {
+        this.saltRounds = 10;
     }
   
-    compare(value, password, callback) {
-        bcrypt.compare(value, password, (err, result) => {
-            if (err) {
-                return console.error('Error:', err);
-            }
-    
-            callback(result);
-        });
+    hashPassword(password) {
+        return bcrypt.hashSync(password, this.saltRounds);
+    }
+  
+    comparePasswords(password, hashedPassword) {
+        return bcrypt.compareSync(password, hashedPassword);
     }
 }
 
 class App {
-    constructor(hasher) {
-        this.hasher = hasher;
+    constructor(passwordService) {
+        this.passwordService = passwordService;
         this.form = document.getElementById("form");
         this.password = document.getElementById("password");
         this.error = document.getElementById("error");
@@ -33,33 +25,38 @@ class App {
         this.form.addEventListener("submit", (e) => this.onSubmit(e));
     }
 
-    async onSubmit(e) {
+    onSubmit(e) {
         e.preventDefault();
 
         if (this.password.value.length <= 0) return
 
         if (!localStorage.getItem("password")){
-            this.hasher.hash(this.password.value, (result) => {
-                localStorage.setItem("password", result);
-                localStorage.setItem("isBlocked", false);
-                window.location.href = '/';
-            });
+            this.registration();
         } else {
-            const password = localStorage.getItem("password");
-
-            this.hasher.compare(this.password.value, password, (result) => {
-                if (result) {
-                    localStorage.setItem("isBlocked", false);
-                    window.location.href = '/';
-                } else {
-                    this.error.innerHTML = "Не правильний пароль";
-                }
-            })
+            this.loginization();
         }
+    }
+
+    registration() {
+        const hashedPassword = this.passwordService.hashPassword(this.password.value);
+
+        localStorage.setItem("password", hashedPassword);
+        localStorage.setItem("isBlocked", false);
+        window.location.href = '/';
+    }
+
+    loginization() {
+        const hashedPassword = localStorage.getItem("password");
+        const result = this.passwordService.comparePasswords(this.password.value, hashedPassword);
+
+        if (!result) return this.error.innerHTML = "Не правильний пароль";
+
+        localStorage.setItem("isBlocked", false);
+        window.location.href = '/';
     }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const hasher = new BcryptHasher();
-    const app = new App(hasher);
+    const passwordService = new PasswordService();
+    const app = new App(passwordService);
 });
