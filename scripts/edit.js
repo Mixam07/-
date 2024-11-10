@@ -11,6 +11,11 @@ class App {
     }
 
     init() {
+        if (performance.navigation.type === 1 || localStorage.getItem("isBlocked") == "true" || !localStorage.getItem("isBlocked")) {
+            localStorage.setItem("isBlocked", true)
+            window.location.href = '/password.html';
+        }
+        
         this.saveButton.addEventListener("click", (e) => this.save());
         this.pinBtn.addEventListener("click", (e) => this.togglePin());
         this.getData();

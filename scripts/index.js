@@ -11,6 +11,12 @@ class App {
     }
 
     init() {
+        console.log(performance.navigation.type)
+        if (performance.navigation.type === 1 || localStorage.getItem("isBlocked") == "true" || !localStorage.getItem("isBlocked")) {
+            localStorage.setItem("isBlocked", true)
+            window.location.href = '/password.html';
+        }
+
         this.createPassword();
         this.getNotes();
         this.addNotesToPage();
@@ -42,6 +48,8 @@ class App {
     }
 
     getNotes() {
+        if (!localStorage.getItem("notes")) return
+
         const notes = JSON.parse(localStorage.getItem("notes"));
         const password = localStorage.getItem("password");
         const newNotesList = [];
@@ -58,7 +66,6 @@ class App {
         });
 
         this.notes = newNotesList;
-        console.log(this.notes)
     }
 
     addNotesToPage() {
@@ -167,8 +174,6 @@ class App {
 
                     return CryptoJS.AES.encrypt(JSON.stringify(item), password).toString()
                 });
-
-                console.log(newList)
 
                 localStorage.setItem("notes", JSON.stringify(newList));
                 location.reload();
