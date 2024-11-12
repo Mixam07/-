@@ -15,6 +15,7 @@ class PasswordService {
 class App {
     constructor(passwordService) {
         this.passwordService = passwordService;
+        this.title = document.getElementById("title");
         this.form = document.getElementById("form");
         this.password = document.getElementById("password");
         this.error = document.getElementById("error");
@@ -22,7 +23,18 @@ class App {
     }
 
     init() {
+        this.setTitle();
         this.form.addEventListener("submit", (e) => this.onSubmit(e));
+    }
+
+    setTitle() {
+        const isPasswordEmpty = !localStorage.getItem("password");
+
+        if (isPasswordEmpty) {
+            this.title.innerHTML = "Введіть новий пароль";
+        } else {
+            this.title.innerHTML = "Введіть пароль для перегляду ваших записів";
+        }
     }
 
     onSubmit(e) {
